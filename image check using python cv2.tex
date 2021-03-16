@@ -1,0 +1,47 @@
+#####Image match check
+
+
+import cv2
+capture = cv2.VideoCapture(0)
+
+brianimage = cv2.imread("C:/Users/BRIAN CHRIS/Downloads/4.jpg")
+
+brian_orb = cv2.ORB_create(nfeatures=70000)
+kdef,dir1 = brian_orb.detectAndCompute(brianimage,None)
+#brianimage = cv2.drawKeypoints(brianimage,kdef,None)
+
+## To find and match video shape with image shape
+binary,cap = capture.read()
+WT,HT,CT = cap.shape
+
+brianimage = cv2.resize(brianimage,(HT,WT))
+cv2.imshow("Brian's Image",brianimage)
+
+
+while True:
+    
+    
+    binary,videobrian = capture.read()
+    videoorb = cv2.ORB_create(nfeatures = 20000)
+    kdef2,dir2=videoorb.detectAndCompute(videobrian,None)
+    #videobrian = cv2.drawKeypoints(videobrian,kdef2,None)
+    
+    
+    cv2.imshow("Image matching",videobrian)
+    if cv2.waitKey(1) & 0XFF == 27:
+                break
+
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(dir1,dir2,k=2)
+    good = []
+    for m,n in matches:
+        if m.distance < 0.75 * n.distance:
+            good.append(m)
+    imgfeatures = cv2.drawMatches(brianimage,kdef,videobrian,kdef2,good,None,flags = 2)
+    
+    cv2.imshow("Matching video and photo",imgfeatures)
+        
+        
+        
+capture.release()
+cv2.destroyAllWindows()
